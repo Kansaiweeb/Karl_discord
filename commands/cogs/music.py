@@ -101,21 +101,25 @@ class Music(commands.Cog):
                 await channel.connect()
             except asyncio.TimeoutError:
                 raise VoiceConnectionError(f'Connecting to channel: <{channel}> timed out.')
-        if random.randint(0, 1) == 0:
-            await ctx.message.add_reaction('👍')
         await ctx.send(f'**Joined `{channel}`**')
 
     @commands.command(name='play', aliases=['sing', 'p'], description="streams music")
-    async def play_(self, ctx, *, search: str):
+    async def play_(self, ctx, *, search: str = None):
         """Request a song and add it to the queue.
         This command attempts to join a valid voice channel if the bot is not already in one.
         Uses YTDL to automatically search and retrieve a song.
         Parameters
         ------------
+        ctx: Aboba
         search: str [Required]
             The song to search and retrieve using YTDL. This could be a simple search, an ID or URL.
         """
         await ctx.trigger_typing()
+        if search is None:
+            embed = discord.Embed(title="", description="No command parameter specified",
+                                  color=discord.Color.green())
+            await ctx.send(embed=embed)
+            return
 
         vc = ctx.voice_client
 
@@ -288,7 +292,7 @@ class Music(commands.Cog):
         embed.set_author(icon_url=self.bot.user.avatar_url, name=f"Now Playing 🎶")
         await ctx.send(embed=embed)
 
-    @commands.command(name='volume', aliases=['vol', 'v'], description="changes Kermit's volume")
+    @commands.command(name='volume', aliases=['vol', 'v'], description="changes Karl's volume")
     async def change_volume(self, ctx, *, vol: float = None):
         """Change the player volume.
         Parameters
@@ -337,9 +341,6 @@ class Music(commands.Cog):
             embed = discord.Embed(title="", description="I'm not connected to a voice channel",
                                   color=discord.Color.green())
             return await ctx.send(embed=embed)
-
-        if random.randint(0, 1) == 0:
-            await ctx.message.add_reaction('👋')
         await ctx.send('**Successfully disconnected**')
 
         await self.cleanup(ctx.guild)
