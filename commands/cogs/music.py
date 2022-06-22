@@ -7,6 +7,8 @@ import sys
 import traceback
 from utils.player import MusicPlayer, YTDLSource
 
+TUTEL_LINK="https://www.youtube.com/watch?v=oxzEdm29JLw"
+
 
 class VoiceConnectionError(commands.CommandError):
     """Custom Exception class for connection errors."""
@@ -344,3 +346,21 @@ class Music(commands.Cog):
         await ctx.send('**Successfully disconnected**')
 
         await self.cleanup(ctx.guild)
+
+    @commands.command(name='tutel', aliases=["tuteel", "tuteeel", "тутель", "тутел"], description="tutel")
+    async def tutel_(self, ctx):
+        "Start playing tutel"
+        await ctx.trigger_typing()
+
+        vc = ctx.voice_client
+
+        if not vc:
+            await ctx.invoke(self.connect_)
+
+        player = self.get_player(ctx)
+
+        # If download is False, source will be a dict which will be used later to regather the stream.
+        # If download is True, source will be a discord.FFmpegPCMAudio with a VolumeTransformer.
+        source = await YTDLSource.create_source(ctx, TUTEL_LINK, loop=self.bot.loop, download=False)
+
+        await player.queue.put(source)
